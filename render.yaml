@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: app-normat-backend
+    name: normat-api-v1
     env: node
     plan: free
     rootDir: backend
@@ -9,11 +9,9 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
-      - key: PORT
-        value: 10000
       - key: DATABASE_URL
         fromDatabase:
-          name: app-normat-db
+          name: normat-db-v1
           property: connectionString
       - key: JWT_SECRET
         generateValue: true
@@ -21,11 +19,9 @@ services:
         generateValue: true
       - key: CORS_ORIGIN
         value: "*"
-      - key: TZ
-        value: America/Argentina/Cordoba
 
 databases:
-  - name: app-normat-db
+  - name: normat-db-v1
     plan: free
     databaseName: remitos_db
     user: remitos_user
