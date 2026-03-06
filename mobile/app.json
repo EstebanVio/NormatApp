@@ -1,0 +1,52 @@
+{
+  "expo": {
+    "name": "Remitos Digitales",
+    "slug": "remitos-digitales",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "platforms": [
+      "ios",
+      "android",
+      "web"
+    ],
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTabletMode": true,
+      "bundleIdentifier": "com.appnormat.remitos"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "package": "com.appnormat.remitos",
+      "permissions": [
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      [
+        "expo-location"
+      ]
+    ],
+    "newArchEnabled": false,
+    "extra": {
+      "eas": {
+        "projectId": "88ccd763-4310-4733-a93d-b1b662ad2fd5"
+      }
+    },
+    "owner": "estebanviotti"
+  }
+}

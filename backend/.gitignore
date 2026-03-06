@@ -1,0 +1,13 @@
+.DS_Store
+node_modules/
+dist/
+*.log
+.env
+.env.local
+*.swp
+.vscode/
+.idea/
+uploads/
+error.log
+combined.log
+.prisma/

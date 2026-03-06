@@ -1,0 +1,113 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String     @id @default(cuid())
+  email     String     @unique
+  name      String
+  passwordHash String
+  role      Role       @default(OPERATOR)
+  transporte Transporte? @relation(fields: [transporteId], references: [id])
+  transporteId String?
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  
+  auditLogs AuditLog[]
+  entregas  Entrega[]
+  
+  @@map("users")
+}
+
+model Transporte {
+  id        String     @id @default(cuid())
+  nombre    String
+  activo    Boolean    @default(true)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  
+  users  User[]
+  remitos Remito[]
+  
+  @@map("transportes")
+}
+
+model Remito {
+  id            String     @id @default(cuid())
+  numero        String     @unique
+  cliente       String
+  direccion     String
+  observaciones String?
+  archivoUrl    String?
+  archivoKey    String?    // S3 key or local path
+  estado        EstadoRemito @default(PENDIENTE)
+  transporte    Transporte? @relation(fields: [transporteId], references: [id], onDelete: SetNull)
+  transporteId  String?
+  fechaCreacion DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  
+  entregas      Entrega[]
+  auditLogs     AuditLog[]
+  
+  @@map("remitos")
+}
+
+model Entrega {
+  id              String     @id @default(cuid())
+  remito          Remito     @relation(fields: [remitoId], references: [id], onDelete: Cascade)
+  remitoId        String
+  firmaUrl        String?    // S3 URL or local path
+  firmaKey        String?    // S3 key
+  fotoUrl         String?
+  fotoKey         String?
+  nombreReceptor  String
+  lat             Float
+  lng             Float
+  ipAddress       String?
+  userAgent       String?
+  fechaEntrega    DateTime   @default(now())
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+  
+  usuario         User       @relation(fields: [usuarioId], references: [id])
+  usuarioId       String
+  
+  @@map("entregas")
+}
+
+model AuditLog {
+  id        String     @id @default(cuid())
+  usuario   User?      @relation(fields: [usuarioId], references: [id], onDelete: SetNull)
+  usuarioId String?
+  remito    Remito?    @relation(fields: [remitoId], references: [id], onDelete: SetNull)
+  remitoId  String?
+  accion    String
+  metaJson  String?    // JSON serialized
+  createdAt DateTime   @default(now())
+  
+  @@map("audit_logs")
+  @@index([usuarioId])
+  @@index([remitoId])
+}
+
+enum Role {
+  ADMIN
+  OPERATOR
+  DRIVER
+}
+
+enum EstadoRemito {
+  PENDIENTE
+  ASIGNADO
+  EN_ENTREGA
+  ENTREGADO
+  RECHAZADO
+}

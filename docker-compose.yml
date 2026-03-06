@@ -1,0 +1,80 @@
+version: '3.9'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: remitos-db
+    environment:
+      POSTGRES_USER: remitos_user
+      POSTGRES_PASSWORD: remitos_password
+      POSTGRES_DB: remitos_db
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U remitos_user -d remitos_db']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Backend API
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: remitos-backend
+    environment:
+      NODE_ENV: development
+      DATABASE_URL: postgresql://remitos_user:remitos_password@postgres:5432/remitos_db
+      JWT_SECRET: dev-secret-change-this
+      JWT_REFRESH_SECRET: dev-refresh-secret-change-this
+      PORT: 3000
+      STORAGE_TYPE: local
+      UPLOAD_DIR: /app/uploads
+      CORS_ORIGIN: http://localhost:5173,http://localhost:8081
+      REDIS_URL: redis://redis:6379
+    ports:
+      - '3000:3000'
+    volumes:
+      - ./backend/src:/app/src
+      - ./backend/uploads:/app/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    command: npm run dev
+
+  # Redis for WebSockets
+  redis:
+    image: redis:7-alpine
+    container_name: remitos-redis
+    ports:
+      - '6379:6379'
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Admin Web Panel
+  admin-web:
+    build:
+      context: ./admin-web
+      dockerfile: Dockerfile
+    container_name: remitos-admin-web
+    environment:
+      VITE_API_URL: http://localhost:3000
+    ports:
+      - '5173:5173'
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
+
+networks:
+  default:
+    name: remitos-network
