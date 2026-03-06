@@ -3,7 +3,6 @@ services:
     name: app-normat-backend
     env: node
     plan: free
-    repo: . # Usa el repo actual
     rootDir: backend
     buildCommand: npm install && npx prisma generate && npm run build
     startCommand: npx prisma migrate deploy && npm start
